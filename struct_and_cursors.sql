@@ -159,3 +159,45 @@ BEGIN
     END LOOP;
 END;
 
+
+-- Declara un cursor implicit care sa intoarca din tabela animale numele animalului cu id_animal = 1
+
+DECLARE
+    nume animale.nume_animal%TYPE;
+BEGIN
+    SELECT nume_animal
+    INTO nume
+    FROM animale
+    WHERE id_animal = 1;
+END;
+/
+
+-- Foloseste un cursor implicit care returneaza salariile medicilor cu specializarea 'Rezidenta' (id_specializare = 9)
+-- Se va folosi un nested table 
+
+DECLARE 
+    TYPE tab_rezidenta IS TABLE OF medici.salariul%TYPE;
+    sal tab_rezidenta;
+BEGIN
+    SELECT salariul
+    BULK COLLECT INTO sal
+    FROM medici
+    WHERE id_specializare = 9;
+END;
+/
+
+-- Actualizeaza tabela medici crescand salariile cu 100 si foloseste atributul SQL%ROWCOUNT pentru a determina numarul de inregistrari afectate
+
+DECLARE
+    nr_inregistrari NUMBER;
+BEGIN
+    UPDATE medici
+    SET salariul = salariul + 100;
+    IF SQL%NOTFOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Niciun medic nu a fost afectat');
+    ELSIF SQL%FOUND THEN
+        nr_inregistrari := SQL%ROWCOUNT;
+        DBMS_OUTPUT.PUT_LINE('Au fost afectate ' || nr_inregistrari || ' inregistrari din tabela MEDICI');
+    END IF;
+END;
+/
